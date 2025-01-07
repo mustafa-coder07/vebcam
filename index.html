@@ -36,6 +36,7 @@
   <script>
     const socket = new WebSocket('wss://rain-sand-phlox.glitch.me');  // Замените на URL вашего WebSocket сервера Glitch
     let localStream;
+    let remoteStream;
 
     const isOwner = window.location.search.includes('owner=true');
 
@@ -50,6 +51,11 @@
           if (!isOwner) {
             userVideo.style.display = 'none';  // Пользователь не видит себя
           }
+
+          // Отправляем видеопоток другим пользователям через WebSocket
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: 'video', stream: stream }));
+          }
         })
         .catch(err => {
           console.error("Ошибка получения доступа к камере и микрофону: ", err);
@@ -63,8 +69,17 @@
       getUserMedia();
     };
 
+    // Обработка входящих сообщений от WebSocket
     socket.onmessage = (message) => {
       console.log('Получено сообщение от сервера:', message.data);
+
+      const data = JSON.parse(message.data);
+      if (data.type === 'video') {
+        // Пример получения видеопотока другого пользователя
+        remoteStream = data.stream;
+        const friendVideo = document.getElementById('friendVideo');
+        friendVideo.srcObject = remoteStream;
+      }
     };
 
     socket.onerror = (error) => {
