@@ -1,85 +1,86 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Видеочат</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Видеочат</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
 
-        video {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 10px;
-        }
+    video {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
 
-        #friendVideo {
-            width: 640px;
-            height: 480px;
-        }
-    </style>
+    #friendVideo {
+      width: 640px;
+      height: 480px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Видеочат</h1>
+  <h1>Видеочат</h1>
 
-    <!-- Видео с камерой пользователя -->
-    <video id="userVideo" autoplay muted></video>
+  <!-- Видео с камерой пользователя -->
+  <video id="userVideo" autoplay muted></video>
 
-    <!-- Видео с камерой других пользователей -->
-    <video id="friendVideo" autoplay></video>
+  <!-- Видео с камерой других пользователей -->
+  <video id="friendVideo" autoplay></video>
 
-    <script>
-        const socket = new WebSocket('wss://fern-nice-ray.glitch.me');  // Вставь URL сервера WebSocket
-        let localStream;
-        const isOwner = window.location.search.includes('owner=true');
+  <script>
+    const socket = new WebSocket('wss://rain-sand-phlox.glitch.me');  // Замените на URL вашего WebSocket сервера Glitch
+    let localStream;
 
-        // Функция для получения доступа к камере и микрофону
-        function getUserMedia() {
-            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-                .then(stream => {
-                    localStream = stream;
-                    const userVideo = document.getElementById('userVideo');
-                    userVideo.srcObject = stream;
+    const isOwner = window.location.search.includes('owner=true');
 
-                    if (!isOwner) {
-                        userVideo.style.display = 'none';  // Пользователь не видит себя
-                    }
-                })
-                .catch(err => {
-                    console.error("Ошибка получения доступа к камере и микрофону: ", err);
-                    alert("Доступ к камере и микрофону отклонен. Пожалуйста, разрешите доступ.");
-                });
-        }
+    // Функция для получения доступа к камере и микрофону
+    function getUserMedia() {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(stream => {
+          localStream = stream;
+          const userVideo = document.getElementById('userVideo');
+          userVideo.srcObject = stream;
 
-        // Подключение к WebSocket серверу
-        socket.onopen = () => {
-            console.log('Подключено к серверу WebSocket');
-            getUserMedia();
-        };
+          if (!isOwner) {
+            userVideo.style.display = 'none';  // Пользователь не видит себя
+          }
+        })
+        .catch(err => {
+          console.error("Ошибка получения доступа к камере и микрофону: ", err);
+          alert("Доступ к камере и микрофону отклонен. Пожалуйста, разрешите доступ.");
+        });
+    }
 
-        socket.onmessage = (message) => {
-            console.log('Получено сообщение от сервера:', message.data);
-        };
+    // Подключение к WebSocket серверу
+    socket.onopen = () => {
+      console.log('Подключено к серверу WebSocket');
+      getUserMedia();
+    };
 
-        socket.onerror = (error) => {
-            console.error('Ошибка WebSocket:', error);
-        };
+    socket.onmessage = (message) => {
+      console.log('Получено сообщение от сервера:', message.data);
+    };
 
-        socket.onclose = () => {
-            console.log('Соединение WebSocket закрыто');
-        };
+    socket.onerror = (error) => {
+      console.error('Ошибка WebSocket:', error);
+    };
 
-        // Дополнительно: сообщение о владельце
-        if (isOwner) {
-            console.log('Вы владелец сайта, видите и слышите всех пользователей.');
-        } else {
-            console.log('Вы обычный пользователь. Видео только для владельца.');
-        }
-    </script>
+    socket.onclose = () => {
+      console.log('Соединение WebSocket закрыто');
+    };
+
+    // Дополнительно: сообщение о владельце
+    if (isOwner) {
+      console.log('Вы владелец сайта, видите и слышите всех пользователей.');
+    } else {
+      console.log('Вы обычный пользователь. Видео только для владельца.');
+    }
+  </script>
 </body>
 </html>
